@@ -1,31 +1,21 @@
 const supertest = require("supertest");
 
 const app = require("../../app");
-const Stream = require("../../models/stream");
-const Class = require("../../models/class");
+const Condition = require("../../models/condition");
 
 const request = supertest(app);
 
 const BASE_URL = "/api/v1";
 
-let testStream;
-
-beforeAll(async function () {
-  testStream = await Stream.create({
-    name: "yellow",
-  });
-});
-
 afterAll(async function () {
-  await Class.deleteMany({});
-  await Stream.deleteMany({});
+  await Condition.deleteMany({});
 });
 
-describe("/classes", function () {
-  const url = `${BASE_URL}/classes`;
+describe("/conditions", function () {
+  const url = `${BASE_URL}/conditions`;
 
-  describe.skip("GET /", function () {
-    it("should return list of classes", async (done) => {
+  describe("GET /", function () {
+    it("should return list of conditions", async (done) => {
       try {
         const resp = await request.get(url);
 
@@ -39,30 +29,36 @@ describe("/classes", function () {
   });
 
   describe("POST /", function () {
-    it("should return newly created class", async (done) => {
+    it("should return newly created condition", async (done) => {
       try {
-        let resp = await request.post(`${BASE_URL}/teachers/signin`).send({
+        let resp = await request.post(`${BASE_URL}/users/signin`).send({
           username: "devyego@gmail.com",
           password: process.env.TEST_USER_PASSWORD,
         });
 
-        if (!resp.body?.data?.token) {
+        if (!resp.body.data.token) {
           throw new Error("Authentication failed.");
         }
 
         resp = await request
           .post(url)
           .send({
-            level: "2",
-            stream: testStream._id,
-            classTeacher: resp.body.data._id,
+            name: "depression",
+            symptoms: `isolation
+demotivation
+irritation
+anxiety`,
+            remedies: `cognitive therapy
+social therapy
+interaction
+meditation`,
           })
           .set({
             Authorization: `Bearer ${resp.body.data.token}`,
           });
 
         expect(resp.status).toBe(201);
-        expect(resp.body.data.level).toBeDefined();
+        expect(resp.body.data.symptoms).toBeDefined();
         done();
       } catch (error) {
         done(error);

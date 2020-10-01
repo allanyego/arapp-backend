@@ -2,9 +2,9 @@ var express = require("express");
 var router = express.Router();
 
 const auth = require("../middleware/auth");
-const schema = require("../joi-schemas/class");
+const schema = require("../joi-schemas/condition");
 const createResponse = require("./helpers/create-response");
-const controller = require("../controllers/classes");
+const controller = require("../controllers/conditions");
 
 router.get("/", async function (req, res, next) {
   try {

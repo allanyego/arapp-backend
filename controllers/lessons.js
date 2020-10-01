@@ -1,5 +1,5 @@
 const Lesson = require("../models/lesson");
-const Class = require("../models/class");
+const Class = require("../models/condition");
 
 async function add(data) {
   if (await Lesson.findOne({ day: data.day, slot: data.slot })) {
