@@ -28,6 +28,8 @@ describe("/conditions", function () {
     });
   });
 
+  let tempCondition;
+
   describe("POST /", function () {
     it("should return newly created condition", async (done) => {
       try {
@@ -44,6 +46,8 @@ describe("/conditions", function () {
           .post(url)
           .send({
             name: "depression",
+            description:
+              "depression has been a nuisance to many of out young population, it's a killer.",
             symptoms: `isolation
 demotivation
 irritation
@@ -59,6 +63,21 @@ meditation`,
 
         expect(resp.status).toBe(201);
         expect(resp.body.data.symptoms).toBeDefined();
+        tempCondition = resp.body.data;
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+  });
+
+  describe("GET /:conditionId", function () {
+    it("should return condition by given id", async (done) => {
+      try {
+        const resp = await request.get(`${url}/${tempCondition._id}`);
+
+        expect(resp.status).toBe(200);
+        expect(resp.body.data.description).toBeDefined();
         done();
       } catch (error) {
         done(error);

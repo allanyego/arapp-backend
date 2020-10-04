@@ -10,15 +10,28 @@ const sign = require("./helpers/sign");
 const auth = require("../middleware/auth");
 
 router.get("/", async function (req, res, next) {
-  const { username, accountType } = req.query;
+  const { username, patient } = req.query;
 
   try {
     res.json(
       createResponse({
         data: await controller.get({
           username,
-          accountType,
+          patient,
         }),
+      })
+    );
+  } catch (error) {
+    console.log("What's up", error);
+    next(error);
+  }
+});
+
+router.get("/:userId", async function (req, res, next) {
+  try {
+    res.json(
+      createResponse({
+        data: await controller.findById(req.params.userId),
       })
     );
   } catch (error) {
@@ -86,6 +99,7 @@ router.post("/", async function (req, res, next) {
       })
     );
   } catch (error) {
+    console.log("User create error", error);
     if (error.message === "Possible duplicate.") {
       return res.json(
         createResponse({
@@ -110,7 +124,7 @@ router.put("/:userId", auth, async function (req, res, next) {
   }
 
   try {
-    res.status(201).json(
+    res.json(
       createResponse({
         data: await controller.update(req.params.userId, req.body),
       })

@@ -5,6 +5,10 @@ const conditionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  description: {
+    type: String,
+    required: true,
+  },
   symptoms: {
     type: String,
     required: true,

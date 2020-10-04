@@ -5,12 +5,25 @@ const auth = require("../middleware/auth");
 const schema = require("../joi-schemas/condition");
 const createResponse = require("./helpers/create-response");
 const controller = require("../controllers/conditions");
+const isClientError = require("../util/is-client-error");
 
 router.get("/", async function (req, res, next) {
   try {
     res.json(
       createResponse({
         data: await controller.get(),
+      })
+    );
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:conditionId", async function (req, res, next) {
+  try {
+    res.json(
+      createResponse({
+        data: await controller.findById(req.params.conditionId),
       })
     );
   } catch (error) {
@@ -36,10 +49,10 @@ router.post("/", auth, async function (req, res, next) {
       })
     );
   } catch (error) {
-    if (error.message === "Possible duplicate.") {
+    if (isClientError(error)) {
       return res.json(
         createResponse({
-          error: "There is a class existing with similar details.",
+          error: error.message,
         })
       );
     }

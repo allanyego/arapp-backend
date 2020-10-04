@@ -1,4 +1,7 @@
 const mongoose = require("mongoose");
+const { USER } = require("../util/constants");
+
+const { PROFESSIONAL, PATIENT, INSTITUTION } = USER.ACCOUNT_TYPES;
 
 const userSchema = new mongoose.Schema({
   fullName: {
@@ -15,6 +18,7 @@ const userSchema = new mongoose.Schema({
   },
   gender: {
     type: String,
+    enum: ["female", "male"],
     required: true,
   },
   birthday: {
@@ -38,6 +42,7 @@ const userSchema = new mongoose.Schema({
   },
   accountType: {
     type: String,
+    enum: [PROFESSIONAL, PATIENT, INSTITUTION, null],
     default: null,
   },
   experience: Number,

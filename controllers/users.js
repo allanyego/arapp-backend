@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const { USER } = require("../util/constants");
 
 async function add(data) {
   if (
@@ -13,14 +14,21 @@ async function add(data) {
   return await User.create(data);
 }
 
-async function get({ accountType, username }) {
+async function get({ username, patient }) {
+  const { PATIENT, PROFESSIONAL, INSTITUTION } = USER.ACCOUNT_TYPES;
   const ops = {};
-  if (accountType) {
-    ops.accountType = accountType;
+  if (patient) {
+    ops.accountType = PATIENT;
+  } else {
+    ops.accountType = {
+      $in: [INSTITUTION, PROFESSIONAL],
+    };
   }
+
   if (username) {
     ops.username = username;
   }
+
   return await User.find(ops);
 }
 

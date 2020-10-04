@@ -1,16 +1,37 @@
 var express = require("express");
 var router = express.Router();
 
-const schema = require("../joi-schemas/stream");
+const schema = require("../joi-schemas/message");
 const createResponse = require("./helpers/create-response");
-const controller = require("../controllers/streams");
+const controller = require("../controllers/threads");
 const auth = require("../middleware/auth");
+const isClientError = require("../util/is-client-error");
 
-router.get("/", async function (req, res, next) {
+router.get("/user-threads/:userId", auth, async function (req, res, next) {
+  const { userId } = req.params;
+
+  if (userId !== res.locals.userId) {
+    return res.status(401).json(
+      createResponse({
+        error: "unauthorized access",
+      })
+    );
+  }
+
+  try {
+    res.json({
+      data: await controller.getUserThreads(userId),
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:threadId", auth, async function (req, res, next) {
   try {
     res.json(
       createResponse({
-        data: await controller.get(),
+        data: await controller.get(req.params.threadId),
       })
     );
   } catch (error) {
@@ -36,13 +57,15 @@ router.post("/", auth, async function (req, res, next) {
       })
     );
   } catch (error) {
-    if (error.message === "Possible duplicate.") {
+    console.log(error);
+    if (isClientError(error)) {
       return res.json(
         createResponse({
-          error: "There is a stream existing with similar details.",
+          error: error.message,
         })
       );
     }
+
     next(error);
   }
 });

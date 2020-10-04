@@ -8,9 +8,11 @@ const auth = (req, res, next) => {
     if (authorizationHeader) {
       const token = authorizationHeader.split(" ")[1];
       const decodedToken = jwt.verify(token, process.env.APP_SECRET);
-      const { userId } = decodedToken;
+      const { userId, userAccountType } = decodedToken;
 
       if (userId) {
+        res.locals.userId = userId;
+        res.locals.userAccountType = userAccountType;
         next();
       } else {
         res.status(403).json(

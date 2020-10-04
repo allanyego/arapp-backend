@@ -7,6 +7,9 @@
 var app = require("../app");
 var debug = require("debug")("timetable-backend:server");
 var http = require("http");
+const socketIO = require("socket.io");
+
+// const setupIO = require("../util/setup-io");
 
 /**
  * Get port from environment and store in Express.
@@ -20,6 +23,12 @@ app.set("port", port);
  */
 
 var server = http.createServer(app);
+
+/**
+ * Initiate socket.io and bind events
+ */
+// const io = socketIO(server);
+// setupIO(io);
 
 /**
  * Listen on provided port, on all network interfaces.
