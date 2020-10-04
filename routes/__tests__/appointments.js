@@ -28,7 +28,7 @@ describe("/appointments", function () {
           password: process.env.TEST_USER_PASSWORD,
         });
 
-        if (!resp.body?.data?.token) {
+        if (!resp.body.data.token) {
           throw new Error("Authentication failed.");
         }
 
