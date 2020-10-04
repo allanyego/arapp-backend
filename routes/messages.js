@@ -31,7 +31,7 @@ router.get("/:threadId", auth, async function (req, res, next) {
   try {
     res.json(
       createResponse({
-        data: await controller.get(req.params.threadId),
+        data: await controller.get(req.params.threadId, res.locals.userId),
       })
     );
   } catch (error) {
@@ -57,7 +57,6 @@ router.post("/", auth, async function (req, res, next) {
       })
     );
   } catch (error) {
-    console.log(error);
     if (isClientError(error)) {
       return res.json(
         createResponse({

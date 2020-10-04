@@ -8,6 +8,7 @@ const createResponse = require("./helpers/create-response");
 const controller = require("../controllers/users");
 const sign = require("./helpers/sign");
 const auth = require("../middleware/auth");
+const isClientError = require("../util/is-client-error");
 
 router.get("/", async function (req, res, next) {
   const { username, patient } = req.query;
@@ -40,33 +41,21 @@ router.get("/:userId", async function (req, res, next) {
 });
 
 router.post("/signin", async function (req, res, next) {
-  const { username, password } = req.body;
-  let user = await controller.findByUsername(username);
+  try {
+    res.json({
+      data: await controller.authenticate(req.body),
+    });
+  } catch (error) {
+    console.log(error);
+    if (isClientError(error)) {
+      return res.json(
+        createResponse({
+          error: error.message,
+        })
+      );
+    }
 
-  if (!user) {
-    return res.json(
-      createResponse({
-        error: "No user found matching credentials.",
-      })
-    );
-  }
-
-  if (await bcrypt.compare(password, user.password)) {
-    user = user.toJSON();
-    delete user.password;
-    // Append a token to the user
-    user.token = sign(user);
-    res.json(
-      createResponse({
-        data: user,
-      })
-    );
-  } else {
-    res.json(
-      createResponse({
-        error: "Invalid credentials.",
-      })
-    );
+    next(error);
   }
 });
 

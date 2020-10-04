@@ -32,9 +32,12 @@ async function add(data) {
   return thread;
 }
 
-async function get(thread) {
+async function get(thread, userId) {
   const pop = "_id fullName";
-  return await Message.find({ thread })
+  return await Message.find({
+    thread,
+    $or: [{ sender: userId }, { recipient: userId }],
+  })
     .populate("sender", pop)
     .populate("recipient", pop);
 }
@@ -46,7 +49,7 @@ async function getUserThreads(userId) {
     },
   })
     .populate("lastMessage", "body createdAt")
-    .populate("participants", "fullName");
+    .populate("participants", "_id fullName");
 }
 
 module.exports = {
