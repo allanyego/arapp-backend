@@ -19,13 +19,12 @@ async function add(data) {
 }
 
 async function get({ username, patient }) {
-  const { PATIENT, PROFESSIONAL, INSTITUTION } = USER.ACCOUNT_TYPES;
   const ops = {};
   if (patient) {
-    ops.accountType = PATIENT;
+    ops.accountType = USER.ACCOUNT_TYPES.USER;
   } else {
     ops.accountType = {
-      $in: [INSTITUTION, PROFESSIONAL],
+      $in: [USER.ACCOUNT_TYPES.COUNSELLOR],
     };
   }
 
