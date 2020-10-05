@@ -15,16 +15,16 @@ afterAll(async function () {
 
 describe("/messages", function () {
   const url = `${BASE_URL}/messages`;
-  let tempDoc = {
-    _id: "5f79622bbe2ead0f7152437a",
+  let tempCounsellor = {
+    _id: "5f7a417bca9c152b5d2d3244",
   };
-  let tempPatient, testThread;
+  let tempUser, testThread;
 
   describe("POST /", function () {
     it("should return newly created thread", async (done) => {
       try {
         let resp = await request.post(`${BASE_URL}/users/signin`).send({
-          username: "marykoi@gmail.com",
+          username: "lmary@gmail.com",
           password: process.env.TEST_USER_PASSWORD,
         });
 
@@ -32,17 +32,17 @@ describe("/messages", function () {
           throw new Error("Authentication failed.");
         }
 
-        tempPatient = resp.body.data;
+        tempUser = resp.body.data;
 
         resp = await request
           .post(url)
           .send({
-            sender: tempPatient._id,
-            recipient: tempDoc._id,
-            body: "hi, tom",
+            sender: tempUser._id,
+            recipient: tempCounsellor._id,
+            body: "hi, banji",
           })
           .set({
-            Authorization: `Bearer ${tempPatient.token}`,
+            Authorization: `Bearer ${tempUser.token}`,
           });
 
         expect(resp.status).toBe(201);
@@ -59,7 +59,7 @@ describe("/messages", function () {
     it("should return a list of user messages", async (done) => {
       try {
         const resp = await request.get(`${url}/${testThread._id}`).set({
-          Authorization: `Bearer ${tempPatient.token}`,
+          Authorization: `Bearer ${tempUser.token}`,
         });
 
         expect(resp.status).toBe(200);
@@ -75,9 +75,9 @@ describe("/messages", function () {
     it("should return a list of user threads", async (done) => {
       try {
         const resp = await request
-          .get(`${url}/user-threads/${tempPatient._id}`)
+          .get(`${url}/user-threads/${tempUser._id}`)
           .set({
-            Authorization: `Bearer ${tempPatient.token}`,
+            Authorization: `Bearer ${tempUser.token}`,
           });
 
         expect(resp.status).toBe(200);

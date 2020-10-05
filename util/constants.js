@@ -1,39 +1,10 @@
-const SLOT_TIME_MAP = {
-  0: "08:00",
-  1: "08:40",
-  2: "09:20",
-  3: "10:20",
-  4: "11:00",
-  5: "11:50",
-  6: "12:30",
-  7: "14:00",
-  8: "14:40",
-  9: "15:20",
-};
-
-const APPOINTMENT = {
-  STATUSES: {
-    UNAPPROVED: "UNAPPROVED",
-    APPROVED: "APPROVED",
-    REJECTED: "REJECTED",
-  },
-  TYPES: {
-    VIRTUAL_CONSULTATION: "VIRTUAL_CONSULTATION",
-    ONSITE_CONSULTATION: "ONSITE_CONSULTATION",
-    ONSITE_TESTS: "ONSITE_TESTS",
-  },
-};
-
 const USER = {
   ACCOUNT_TYPES: {
-    PROFESSIONAL: "PROFESSIONAL",
-    INSTITUTION: "INSTITUTION",
-    PATIENT: "PATIENT",
+    USER: "USER",
+    COUNSELLOR: "COUNSELLOR",
   },
 };
 
 module.exports = {
-  SLOT_TIME_MAP,
-  APPOINTMENT,
   USER,
 };

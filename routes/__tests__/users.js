@@ -1,7 +1,7 @@
 const supertest = require("supertest");
 
 const app = require("../../app");
-const Teacher = require("../../models/user");
+const User = require("../../models/user");
 const { USER } = require("../../util/constants");
 
 const request = supertest(app);
@@ -9,7 +9,7 @@ const request = supertest(app);
 const BASE_URL = "/api/v1";
 
 afterAll(async function () {
-  await Teacher.deleteMany({
+  await User.deleteMany({
     username: {
       $not: { $regex: "^test_" },
     },
@@ -21,7 +21,7 @@ describe("/users", function () {
     it("should return authenticated user", async (done) => {
       try {
         const resp = await request.post(`${BASE_URL}/users/signin`).send({
-          username: "devyego@gmail.com",
+          username: "amoskasim@gmail.com",
           password: process.env.TEST_USER_PASSWORD,
         });
 
@@ -49,6 +49,7 @@ describe("/users", function () {
           gender: "male",
           birthday: date,
           password: "test-pass",
+          phone: "254747391124",
         });
 
         expect(resp.status).toBe(201);
@@ -87,7 +88,7 @@ describe("/users", function () {
         const resp = await request
           .put(`${BASE_URL}/users/${tempUser._id}`)
           .send({
-            accountType: USER.ACCOUNT_TYPES.PROFESSIONAL,
+            accountType: USER.ACCOUNT_TYPES.COUNSELLOR,
           })
           .set({
             Authorization: `Bearer ${tempUser.token}`,
@@ -103,12 +104,12 @@ describe("/users", function () {
   });
 
   describe("GET /", function () {
-    it("should return non-patient users with defined account types", async (done) => {
+    it("should return users other than normal users", async (done) => {
       try {
         const resp = await request.get(`${BASE_URL}/users`);
 
         expect(resp.status).toBe(200);
-        expect(resp.body.data.length).toBe(2);
+        expect(resp.body.data.length).toBe(1);
         done();
       } catch (error) {
         done(error);

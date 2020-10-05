@@ -7,6 +7,7 @@ const newSchema = Joi.object({
   gender: Joi.string().required(),
   birthday: Joi.date().required(),
   password: Joi.string().required(),
+  phone: Joi.string().required(),
 });
 
 const editSchema = Joi.object({
