@@ -17,9 +17,17 @@ async function add(data) {
     return await thread.save();
   }
 
-  thread = await Thread.create({
-    participants: [data.sender, data.recipient],
+  thread = await Thread.findOne({
+    participants: {
+      $all: [data.sender, data.recipient],
+    },
   });
+
+  if (!thread) {
+    thread = await Thread.create({
+      participants: [data.sender, data.recipient],
+    });
+  }
 
   lastMessage = await Message.create({
     ...data,

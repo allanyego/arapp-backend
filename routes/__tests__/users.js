@@ -109,6 +109,20 @@ describe("/users", function () {
         const resp = await request.get(`${BASE_URL}/users`);
 
         expect(resp.status).toBe(200);
+        expect(resp.body.data.length).toBe(2);
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+  });
+
+  describe("GET ?username='test_'", function () {
+    it("should return users matching quert", async (done) => {
+      try {
+        const resp = await request.get(`${BASE_URL}/users?username=test_`);
+
+        expect(resp.status).toBe(200);
         expect(resp.body.data.length).toBe(1);
         done();
       } catch (error) {

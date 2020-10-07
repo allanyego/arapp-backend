@@ -18,9 +18,9 @@ async function add(data) {
   return await User.create(data);
 }
 
-async function get({ username, patient }) {
+async function get({ username, user }) {
   const ops = {};
-  if (patient) {
+  if (user) {
     ops.accountType = USER.ACCOUNT_TYPES.USER;
   } else {
     ops.accountType = {
@@ -29,7 +29,9 @@ async function get({ username, patient }) {
   }
 
   if (username) {
-    ops.username = username;
+    ops.username = {
+      $regex: username,
+    };
   }
 
   return await User.find(ops).select("-password");
