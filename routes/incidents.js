@@ -39,7 +39,6 @@ router.get("/:userId", auth, async function (req, res, next) {
 });
 
 router.post("/", auth, async function (req, res, next) {
-  console.log("Got request for new incident", req.body);
   try {
     await schema.newSchema.validateAsync(req.body);
   } catch (error) {
