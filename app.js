@@ -35,5 +35,3 @@ app.use(function errorHandler(err, req, res, next) {
 });
 
 module.exports = app;
-
-// "test": "jest --detectOpenHandles --forceExit"

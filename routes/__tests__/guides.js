@@ -27,7 +27,10 @@ describe("/guides", function () {
   describe("GET /", function () {
     it("should return list of guides", async (done) => {
       try {
-        const resp = await request.get(url);
+        const resp = await (await request.get(url)).set(
+          "Accept",
+          "application/json"
+        );
 
         expect(resp.status).toBe(200);
         expect(resp.body.data.length).toBeDefined();
