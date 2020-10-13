@@ -38,7 +38,7 @@ describe("/incidents", function () {
             },
             contact: {
               displayName: "banji",
-              phone: "0791391124",
+              phone: "+254791391124",
             },
             user: tempUser._id,
           })
@@ -47,7 +47,7 @@ describe("/incidents", function () {
           });
 
         expect(resp.status).toBe(201);
-        expect(resp.body.data.contact).toBeDefined();
+        expect(resp.body.data["SMSMessageData"]).toBeDefined();
         done();
       } catch (error) {
         done(error);
