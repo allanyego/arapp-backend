@@ -1,10 +1,9 @@
 {
-  "name": "afyamedex-backend",
+  "name": "safe360-backend",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "test": "jest --detectOpenHandles --forceExit"
+    "start": "node ./bin/www"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.1.13",
@@ -23,7 +22,6 @@
     "socket.io": "^2.3.0"
   },
   "devDependencies": {
-    "jest": "^26.5.3",
-    "supertest": "^5.0.0"
+    "jest": "^26.5.3"
   }
 }
