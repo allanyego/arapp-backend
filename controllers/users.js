@@ -18,14 +18,14 @@ async function add(data) {
   return await User.create(data);
 }
 
-async function get({ username, patient }) {
-  const { PATIENT, PROFESSIONAL, INSTITUTION } = USER.ACCOUNT_TYPES;
+async function get({ username, user }) {
+  const { COUNSELLOR, USER } = USER.ACCOUNT_TYPES;
   const ops = {};
-  if (patient) {
-    ops.accountType = PATIENT;
+  if (user) {
+    ops.accountType = USER;
   } else {
     ops.accountType = {
-      $in: [INSTITUTION, PROFESSIONAL],
+      $in: [COUNSELLOR],
     };
   }
 

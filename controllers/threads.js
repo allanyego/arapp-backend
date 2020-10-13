@@ -6,7 +6,7 @@ async function add(data) {
   let thread, lastMessage;
 
   if (data.thread) {
-    thread = await Thread.findById(thread);
+    thread = await Thread.findById(data.thread);
     if (!thread) {
       return new CustomError("no thread by that identifier found");
     }

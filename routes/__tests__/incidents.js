@@ -33,12 +33,12 @@ describe("/incidents", function () {
           .post(url)
           .send({
             location: {
-              latitude: "0.478880",
-              longitude: "35.264100",
+              latitude: 0.47888,
+              longitude: 35.2641,
             },
             contact: {
               displayName: "banji",
-              phone: "254791391124",
+              phone: "0791391124",
             },
             user: tempUser._id,
           })
