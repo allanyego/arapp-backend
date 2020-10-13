@@ -19,6 +19,7 @@ async function add(data) {
 }
 
 async function get({ username, user }) {
+<<<<<<< HEAD
   const { COUNSELLOR, USER } = USER.ACCOUNT_TYPES;
   const ops = {};
   if (user) {
@@ -26,11 +27,21 @@ async function get({ username, user }) {
   } else {
     ops.accountType = {
       $in: [COUNSELLOR],
+=======
+  const ops = {};
+  if (user) {
+    ops.accountType = USER.ACCOUNT_TYPES.USER;
+  } else {
+    ops.accountType = {
+      $in: [USER.ACCOUNT_TYPES.COUNSELLOR],
+>>>>>>> 68af49118ad5f5ca742e93759e17eb9ce1387d35
     };
   }
 
   if (username) {
-    ops.username = username;
+    ops.username = {
+      $regex: username,
+    };
   }
 
   return await User.find(ops).select("-password");

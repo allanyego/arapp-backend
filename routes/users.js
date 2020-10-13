@@ -11,14 +11,14 @@ const auth = require("../middleware/auth");
 const isClientError = require("../util/is-client-error");
 
 router.get("/", async function (req, res, next) {
-  const { username, patient } = req.query;
+  const { username, user } = req.query;
 
   try {
     res.json(
       createResponse({
         data: await controller.get({
           username,
-          patient,
+          user,
         }),
       })
     );

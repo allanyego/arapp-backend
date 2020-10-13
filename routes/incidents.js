@@ -48,6 +48,19 @@ router.post("/", auth, async function (req, res, next) {
     );
   }
 
+  if (process.env.NODE_ENV !== "production") {
+    return res.status(201).json(
+      createResponse({
+        data: {
+          contact: {
+            displayName: "ralo kings",
+            phone: "254765676555",
+          },
+        },
+      })
+    );
+  }
+
   try {
     req.body.location.name = await getLocationName(req.body.location);
 
