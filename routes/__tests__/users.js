@@ -46,7 +46,7 @@ describe("/users", function () {
           fullName: "john lu",
           username: "johnlu",
           email: "johnlu@mail.com",
-          gender: "male",
+//           gender: "male",
           birthday: date,
           password: "test-pass",
           phone: "254747391124",
