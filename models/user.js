@@ -24,10 +24,12 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      enum: ["female", "male"],
+      enum: ["female", "male", null],
+      default: null,
     },
     birthday: {
       type: Date,
+      default: null,
     },
     bio: {
       type: String,
