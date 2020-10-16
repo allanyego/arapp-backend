@@ -50,6 +50,7 @@ describe("/users", function () {
           birthday: date,
           password: "test-pass",
           phone: "254747391124",
+          accountType: USER.ACCOUNT_TYPES.COUNSELLOR,
         });
 
         expect(resp.status).toBe(201);

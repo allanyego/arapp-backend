@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const constants = require("../util/constants");
 
-const { USER, COUNSELLOR } = constants.USER.ACCOUNT_TYPES;
+const { USER, COUNSELLOR, HEALTH_FACILITY } = constants.USER.ACCOUNT_TYPES;
 
 const userSchema = new mongoose.Schema(
   {
@@ -38,8 +38,8 @@ const userSchema = new mongoose.Schema(
     },
     accountType: {
       type: String,
-      enum: [COUNSELLOR, USER, null],
-      default: null,
+      enum: [COUNSELLOR, USER, HEALTH_FACILITY],
+      required: true,
     },
     experience: Number,
     speciality: {

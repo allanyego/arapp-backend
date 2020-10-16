@@ -8,6 +8,7 @@ const newSchema = Joi.object({
   birthday: Joi.date(),
   password: Joi.string().required(),
   phone: Joi.string().required(),
+  accountType: Joi.string().required(),
 });
 
 const editSchema = Joi.object({

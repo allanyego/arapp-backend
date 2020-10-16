@@ -33,13 +33,13 @@ router.get("/:guideId", async function (req, res, next) {
 });
 
 router.post("/", auth, async function (req, res, next) {
-  if (res.locals.userAccountType !== USER.ACCOUNT_TYPES.COUNSELLOR) {
-    return res.status(401).json(
-      createResponse({
-        error: "unauthorized operation",
-      })
-    );
-  }
+  // if (res.locals.userAccountType !== USER.ACCOUNT_TYPES.COUNSELLOR) {
+  //   return res.status(401).json(
+  //     createResponse({
+  //       error: "unauthorized operation",
+  //     })
+  //   );
+  // }
 
   try {
     await schema.newSchema.validateAsync(req.body);
