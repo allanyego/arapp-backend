@@ -44,7 +44,6 @@ async function add(data) {
   return thread;
 }
 
-<<<<<<< HEAD
 async function addPublicThread(data) {
   if (await Thread.findOne({ name: data.name })) {
     throw new CustomError("thread by name exists");
@@ -59,10 +58,6 @@ async function get(thread, userId) {
     return getPublicThreadMessages(thread);
   }
 
-=======
-async function get(thread, userId) {
-  const pop = "_id fullName";
->>>>>>> 927d62f01ebef1fe194951bdcf3d4e064c7e65ec
   return await Message.find({
     thread,
     $or: [{ sender: userId }, { recipient: userId }],
@@ -81,7 +76,6 @@ async function getUserThreads(userId) {
     .populate("participants", "_id fullName");
 }
 
-<<<<<<< HEAD
 async function getPublicThreads() {
   return await Thread.find({
     participants: {
@@ -96,16 +90,11 @@ async function getPublicThreadMessages(thread) {
   }).populate("sender", pop);
 }
 
-=======
->>>>>>> 927d62f01ebef1fe194951bdcf3d4e064c7e65ec
 module.exports = {
   add,
   get,
   getUserThreads,
-<<<<<<< HEAD
   addPublicThread,
   getPublicThreads,
   getPublicThreadMessages,
-=======
->>>>>>> 927d62f01ebef1fe194951bdcf3d4e064c7e65ec
 };
