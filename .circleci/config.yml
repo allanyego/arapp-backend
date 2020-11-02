@@ -1,0 +1,15 @@
+version: 2.1
+orbs:
+  node: circleci/node@3.0.0
+  heroku: circleci/heroku@1.2.2
+workflows:
+  node-tests:
+    jobs:
+      - node/test
+  heroku_deploy:
+    jobs:
+      - heroku/deploy-via-git:
+          filters:
+            branches:
+              only: master # only run deploy-via-git job on master branch
+
