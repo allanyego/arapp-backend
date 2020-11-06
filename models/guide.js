@@ -13,6 +13,9 @@ const guideSchema = new mongoose.Schema(
     tags: {
       type: [String],
     },
+    links: {
+      type: [String],
+    },
   },
   {
     timestamps: true,

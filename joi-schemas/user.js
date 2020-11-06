@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { REGEX } = require("../util/constants");
 
 const newSchema = Joi.object({
   fullName: Joi.string().required(),
@@ -7,7 +8,7 @@ const newSchema = Joi.object({
   gender: Joi.string().allow(""),
   birthday: Joi.date().allow(""),
   password: Joi.string().required(),
-  phone: Joi.string().required(),
+  phone: Joi.string().required().pattern(REGEX.PHONE),
   accountType: Joi.string().required(),
 });
 
@@ -16,11 +17,8 @@ const editSchema = Joi.object({
   email: Joi.string(),
   bio: Joi.string(),
   accountType: Joi.string(),
-  experience: Joi.string(),
-  contact: Joi.object({
-    phone: Joi.string(),
-    email: Joi.string().email(),
-  }),
+  experience: Joi.number().min(1),
+  phone: Joi.string().pattern(REGEX.PHONE),
   education: Joi.array().items(
     Joi.object({
       institution: Joi.string(),
@@ -29,7 +27,7 @@ const editSchema = Joi.object({
       endDate: Joi.string(),
     })
   ),
-  speciality: Joi.array().items(Joi.string()),
+  speciality: Joi.string(),
   conditions: Joi.array().items(Joi.string()),
 });
 

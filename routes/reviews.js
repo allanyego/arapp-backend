@@ -14,9 +14,11 @@ router.get("/:userId?", auth, async (req, res, next) => {
   const user = req.params.userId;
 
   const opts = {};
-  if (user) {
+  if (user && !rating) {
     opts.forUser = user;
     opts.byUser = res.locals.userId;
+  } else if (user && rating) {
+    opts.forUser = user;
   } else {
     opts.forUser = res.locals.userId;
   }

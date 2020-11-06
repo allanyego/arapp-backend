@@ -9,6 +9,7 @@ const newSchema = Joi.object({
 
 const publicThreadSchema = Joi.object({
   name: Joi.string().required(),
+  description: Joi.string().required(),
 });
 
 module.exports = {

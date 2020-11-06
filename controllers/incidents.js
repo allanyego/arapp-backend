@@ -14,8 +14,13 @@ async function getUserIncidents(user) {
   });
 }
 
+async function update(_id, data) {
+  return await Incident.updateOne({ _id }, data);
+}
+
 module.exports = {
   add,
   findById,
   getUserIncidents,
+  update,
 };

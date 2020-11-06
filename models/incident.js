@@ -33,7 +33,7 @@ const incidentSchema = new mongoose.Schema(
         displayName: String,
         phone: String,
       },
-      ref: "Subject",
+      required: true,
     },
     sendSuccess: {
       type: Boolean,

@@ -12,7 +12,7 @@ router.get("/", async function (req, res, next) {
   try {
     res.json(
       createResponse({
-        data: await controller.get(),
+        data: await controller.find(),
       })
     );
   } catch (error) {
@@ -32,15 +32,19 @@ router.get("/:guideId", async function (req, res, next) {
   }
 });
 
-router.post("/", auth, async function (req, res, next) {
-  // if (res.locals.userAccountType !== USER.ACCOUNT_TYPES.COUNSELLOR) {
-  //   return res.status(401).json(
-  //     createResponse({
-  //       error: "unauthorized operation",
-  //     })
-  //   );
-  // }
+router.get("/votes/:postId", auth, async function (req, res, next) {
+  try {
+    res.json(
+      createResponse({
+        data: await controller.getVotes(req.params.postId, res.locals.userId),
+      })
+    );
+  } catch (error) {
+    next(error);
+  }
+});
 
+router.post("/", auth, async function (req, res, next) {
   try {
     await schema.newSchema.validateAsync(req.body);
   } catch (error) {
@@ -54,7 +58,41 @@ router.post("/", auth, async function (req, res, next) {
   try {
     res.status(201).json(
       createResponse({
-        data: await controller.add(req.body),
+        data: await controller.create(req.body),
+      })
+    );
+  } catch (error) {
+    if (isClientError(error)) {
+      return res.json(
+        createResponse({
+          error: error.message,
+        })
+      );
+    }
+
+    next(error);
+  }
+});
+
+router.post("/votes/:postId", auth, async function (req, res, next) {
+  try {
+    await schema.voteSchema.validateAsync(req.body);
+  } catch (error) {
+    return res.status(400).json(
+      createResponse({
+        error: error.message,
+      })
+    );
+  }
+
+  try {
+    res.status(200).json(
+      createResponse({
+        data: await controller.vote({
+          post: req.params.postId,
+          user: res.locals.userId,
+          ...req.body,
+        }),
       })
     );
   } catch (error) {

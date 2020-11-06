@@ -9,6 +9,9 @@ const controller = require("../controllers/incidents");
 const userController = require("../controllers/users");
 const isClientError = require("../util/is-client-error");
 const sendSms = require("./helpers/send-sms");
+const signUrl = require("./helpers/sign-url");
+const verifyRequest = require("./helpers/verify-request");
+const sendVideo = require("../middleware/send-video");
 
 const mapsClient = new Client();
 // const nexmo = new Nexmo({
@@ -37,6 +40,39 @@ router.get("/:userId", auth, async function (req, res, next) {
     next(error);
   }
 });
+
+router.get("/video/token", auth, async (req, res, next) => {
+  try {
+    res.json(
+      createResponse({
+        data: signUrl(res.locals.userId),
+      })
+    );
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get(
+  "/video/:filename",
+  async function (req, res, next) {
+    const { token } = req.query;
+    let userId;
+
+    if (!token) {
+      return res.sendStatus(403);
+    }
+
+    try {
+      userId = verifyRequest(token).userId;
+      res.locals.userId = userId;
+      next();
+    } catch (error) {
+      res.sendStatus(403);
+    }
+  },
+  sendVideo
+);
 
 router.post("/", auth, async function (req, res, next) {
   try {
@@ -82,12 +118,17 @@ router.post("/", auth, async function (req, res, next) {
         );
       })
       .catch(async (error) => {
-        const incident = await controller.add({
-          sendSuccess: false,
-          ...req.body,
-        });
+        // const incident = await controller.add({
+        //   sendSuccess: false,
+        //   ...req.body,
+        // });
+        return res.status(400).json(
+          createResponse({
+            error: error.message,
+          })
+        );
 
-        throw error;
+        // throw error;
       });
 
     // nexmo.message.sendSms(
@@ -125,7 +166,7 @@ router.post("/", auth, async function (req, res, next) {
     // );
   } catch (error) {
     if (isClientError(error)) {
-      return res.json(
+      return res.status(400).json(
         createResponse({
           error: error.message,
         })

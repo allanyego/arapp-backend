@@ -6,13 +6,18 @@ const threadSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    participants: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        default: null,
-      },
-    ],
+    description: {
+      type: String,
+      default: null,
+    },
+    participants: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
+    },
     lastMessage: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Message",

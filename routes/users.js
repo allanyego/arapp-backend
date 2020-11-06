@@ -9,8 +9,11 @@ const controller = require("../controllers/users");
 const sign = require("./helpers/sign");
 const auth = require("../middleware/auth");
 const isClientError = require("../util/is-client-error");
+const multer = require("../middleware/multer");
 
 router.get("/", async function (req, res, next) {
+  // If request contains `user` query param,
+  // the client is asking for USER account type
   const { username, user } = req.query;
 
   try {
@@ -23,6 +26,22 @@ router.get("/", async function (req, res, next) {
       })
     );
   } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/picture/:filename", async function (req, res, next) {
+  const { filename } = req.params;
+
+  try {
+    setTimeout(async () => {
+      res.send(await controller.getPicture(filename));
+    }, 10000);
+  } catch (error) {
+    if (isClientError(error)) {
+      return res.sendStatus(404);
+    }
+
     next(error);
   }
 });
@@ -86,10 +105,10 @@ router.post("/", async function (req, res, next) {
       })
     );
   } catch (error) {
-    if (error.message === "Possible duplicate.") {
-      return res.json(
+    if (isClientError(error)) {
+      return res.status(400).json(
         createResponse({
-          error: "There is a stream existing with similar details.",
+          error: error.message,
         })
       );
     }
@@ -98,7 +117,19 @@ router.post("/", async function (req, res, next) {
   }
 });
 
-router.put("/:userId", auth, async function (req, res, next) {
+router.put("/:userId", auth, multer("single", "picture"), async function (
+  req,
+  res,
+  next
+) {
+  if (res.locals.userId !== req.params.userId) {
+    return res.status(401).json(
+      createResponse({
+        error: "Unauthorized operation.",
+      })
+    );
+  }
+
   try {
     await schema.editSchema.validateAsync(req.body);
   } catch (error) {
@@ -112,44 +143,21 @@ router.put("/:userId", auth, async function (req, res, next) {
   try {
     res.json(
       createResponse({
-        data: await controller.update(req.params.userId, req.body),
+        data: await controller.update(req.params.userId, {
+          ...req.body,
+          file: req.file || null,
+        }),
       })
     );
   } catch (error) {
-    next(error);
-  }
-});
+    if (isClientError(error)) {
+      return res.status(400).json(
+        createResponse({
+          error: error.message,
+        })
+      );
+    }
 
-router.post("/reviews/:userId", auth, async function (req, res, next) {
-  try {
-    await schema.reviewSchema.validateAsync(req.body);
-  } catch (error) {
-    return res.status(400).json(
-      createResponse({
-        error: error.message,
-      })
-    );
-  }
-
-  const user = await controller.findById(req.params.userId);
-  if (!user) {
-    return res.json(
-      createResponse({
-        error: "No user found by specified id.",
-      })
-    );
-  }
-
-  user.reviews.push(req.body);
-
-  try {
-    await user.save();
-    res.json(
-      createResponse({
-        data: "Review posted.",
-      })
-    );
-  } catch (error) {
     next(error);
   }
 });

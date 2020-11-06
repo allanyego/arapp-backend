@@ -49,7 +49,7 @@ describe("/users", function () {
           gender: "",
           birthday: "",
           password: "test-pass",
-          phone: "254747391124",
+          phone: "+254747391124",
           accountType: USER.ACCOUNT_TYPES.COUNSELLOR,
         });
 
@@ -119,7 +119,7 @@ describe("/users", function () {
   });
 
   describe("GET ?username='test_'", function () {
-    it("should return users matching quert", async (done) => {
+    it("should return users matching query", async (done) => {
       try {
         const resp = await request.get(`${BASE_URL}/users?username=test_`);
 

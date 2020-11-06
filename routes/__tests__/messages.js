@@ -30,7 +30,7 @@ describe("/messages", function () {
   let testUser, testThread;
 
   describe("POST /", function () {
-    it("should return newly created thread", async (done) => {
+    it("should return newly created thread and added message", async (done) => {
       try {
         let resp = await request.post(`${BASE_URL}/users/signin`).send({
           username: "lmary@gmail.com",
@@ -55,7 +55,7 @@ describe("/messages", function () {
           });
 
         expect(resp.status).toBe(201);
-        expect(resp.body.data.lastMessage).toBeDefined();
+        expect(resp.body.data.thread).toBeDefined();
         testThread = resp.body.data;
         done();
       } catch (error) {

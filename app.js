@@ -10,6 +10,7 @@ require("./db");
 
 var apiRouter = require("./routes/index");
 const createResponse = require("./routes/helpers/create-response");
+const isProduction = require("./util/is-production");
 
 var app = express();
 
@@ -23,6 +24,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/v1", apiRouter);
 
 app.use(function errorHandler(err, req, res, next) {
+  !isProduction() && console.log("server error", err);
+
   if (res.headersSent) {
     return next(err);
   }

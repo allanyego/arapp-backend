@@ -6,6 +6,11 @@ const { USER, COUNSELLOR, HEALTH_FACILITY } = constants.USER.ACCOUNT_TYPES;
 
 const userSchema = new mongoose.Schema(
   {
+    accountType: {
+      type: String,
+      enum: [COUNSELLOR, USER, HEALTH_FACILITY],
+      required: true,
+    },
     fullName: {
       type: String,
       required: true,
@@ -24,8 +29,8 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      enum: ["female", "male", ""],
-      default: "",
+      enum: ["female", "male", null],
+      default: null,
     },
     birthday: {
       type: Date,
@@ -38,15 +43,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    accountType: {
+    picture: {
       type: String,
-      enum: [COUNSELLOR, USER, HEALTH_FACILITY],
-      required: true,
+      default: null,
     },
-    experience: Number,
+    experience: {
+      type: Number,
+      default: null,
+    },
     speciality: {
-      type: [String],
-      default: [],
+      type: String,
+      default: null,
     },
     education: {
       type: [
@@ -55,26 +62,6 @@ const userSchema = new mongoose.Schema(
           areaOfStudy: String,
           startDate: String,
           endDate: String,
-        }),
-      ],
-      default: [],
-    },
-    reviews: {
-      type: [
-        new mongoose.Schema({
-          user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-          },
-          comment: {
-            type: String,
-            required: true,
-          },
-          rating: {
-            type: Number,
-            required: true,
-          },
         }),
       ],
       default: [],

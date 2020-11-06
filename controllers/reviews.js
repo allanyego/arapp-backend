@@ -6,8 +6,12 @@ const User = require("../models/user");
 const CustomError = require("../util/custom-error");
 
 async function add({ forUser, byUser, rating, feedback }) {
-  if (await Review.findOne({ forUser, byUser })) {
-    throw new CustomError("user already has a review");
+  const _review = await Review.findOne({ forUser, byUser });
+  if (_review) {
+    _review.rating = rating;
+    _review.feedback = feedback;
+    await _review.save();
+    return _review;
   }
 
   let user = await User.findById(forUser);
@@ -40,7 +44,7 @@ async function get({ forUser, rating = undefined, byUser = undefined }) {
 
   return await Review.find({
     forUser,
-  }).populate("byUser", "_id fullName");
+  }).populate("byUser", "_id fullName updatedAt createdAt");
 }
 
 module.exports = {

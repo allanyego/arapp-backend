@@ -2,7 +2,7 @@ const Thread = require("../models/thread");
 const Message = require("../models/message");
 const CustomError = require("../util/custom-error");
 
-async function add(data) {
+async function addMessage(data) {
   let thread, lastMessage;
 
   if (data.thread) {
@@ -13,12 +13,13 @@ async function add(data) {
 
     lastMessage = await Message.create(data);
     // If it's a public thread
-    if (!thread.participants || thread.name) {
+    if (thread.name) {
       return lastMessage;
     }
 
     thread.lastMessage = lastMessage._id;
-    return await thread.save();
+    await thread.save();
+    return lastMessage;
   }
 
   thread = await Thread.findOne({
@@ -41,18 +42,18 @@ async function add(data) {
   thread.lastMessage = lastMessage._id;
   await thread.save();
 
-  return thread;
+  return lastMessage;
 }
 
 async function addPublicThread(data) {
-  if (await Thread.findOne({ name: data.name })) {
+  if (await Thread.findOne({ name: data.name, participants: null })) {
     throw new CustomError("thread by name exists");
   }
 
   return await Thread.create(data);
 }
 
-const pop = "_id fullName";
+const pop = "_id fullName picture";
 async function get(thread, userId) {
   if (!userId) {
     return getPublicThreadMessages(thread);
@@ -78,8 +79,8 @@ async function getUserThreads(userId) {
 
 async function getPublicThreads() {
   return await Thread.find({
-    participants: {
-      $eq: null,
+    name: {
+      $ne: null,
     },
   }).populate("lastMessage");
 }
@@ -91,7 +92,7 @@ async function getPublicThreadMessages(thread) {
 }
 
 module.exports = {
-  add,
+  addMessage,
   get,
   getUserThreads,
   addPublicThread,
