@@ -3,6 +3,19 @@ const AT = require("africastalking")({
   username: process.env.AT_USERNAME,
 });
 
+const ucFirst = (s, split = undefined) => {
+  const helper = (str) => str[0].toUpperCase() + str.slice(1);
+
+  if (!split) {
+    return helper(s);
+  }
+
+  return s
+    .split(split)
+    .map((letter) => helper(letter))
+    .join(split);
+};
+
 const createMessage = ({
   recipient,
   sender,
@@ -11,8 +24,12 @@ const createMessage = ({
   latlng,
 }) => {
   return (
-    `${recipient}. It's ${sender}, I might be in trouble. Sent on behalf of ` +
-    `[${senderPhone}], location: ${locationName}, coordinates: (${latlng.lat},${latlng.lng}).`
+    `Hi ${ucFirst(recipient)}. ${ucFirst(
+      sender,
+      " "
+    )} might be in trouble. Sent on user's behalf ` +
+    `[${senderPhone}] DO NOT call them immediately, location: ${locationName}, ` +
+    `(${latlng.lat.toFixed(2)},${latlng.lng.toFixed(2)}).`
   );
 };
 
