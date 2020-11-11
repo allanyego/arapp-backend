@@ -7,7 +7,7 @@ const newSchema = Joi.object({
   username: Joi.string().required(),
   gender: Joi.string().allow(""),
   birthday: Joi.date().allow(""),
-  password: Joi.string().required(),
+  password: Joi.string(),
   phone: Joi.string().required().pattern(REGEX.PHONE),
   accountType: Joi.string().required(),
 });
@@ -16,7 +16,8 @@ const editSchema = Joi.object({
   fullName: Joi.string(),
   email: Joi.string(),
   bio: Joi.string(),
-  accountType: Joi.string(),
+  password: Joi.string(),
+  newPassword: Joi.string(),
   experience: Joi.number().min(1),
   phone: Joi.string().pattern(REGEX.PHONE),
   education: Joi.array().items(

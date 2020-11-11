@@ -23,25 +23,10 @@ afterAll(async function () {
 
 describe("/guides", function () {
   const url = `${BASE_URL}/guides`;
+  let testGuide, testUser;
 
   describe("GET /", function () {
     it("should return list of guides", async (done) => {
-      try {
-        const resp = await request.get(url);
-
-        expect(resp.status).toBe(200);
-        expect(resp.body.data.length).toBeDefined();
-        done();
-      } catch (error) {
-        done(error);
-      }
-    });
-  });
-
-  let tempGuide;
-
-  describe("POST /", function () {
-    it("should return newly created guide", async (done) => {
       try {
         let resp = await request.post(`${BASE_URL}/users/signin`).send({
           username: "adebanji@gmail.com",
@@ -52,16 +37,34 @@ describe("/guides", function () {
           throw new Error("Authentication failed.");
         }
 
-        resp = await request
+        testUser = resp.body.data;
+
+        resp = await request.get(url).set({
+          Authorization: `Bearer ${testUser.token}`,
+        });
+
+        expect(resp.status).toBe(200);
+        expect(resp.body.data.length).toBeDefined();
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+  });
+
+  describe("POST /", function () {
+    it("should return newly created guide", async (done) => {
+      try {
+        const resp = await request
           .post(url)
           .send(testGuideData)
           .set({
-            Authorization: `Bearer ${resp.body.data.token}`,
+            Authorization: `Bearer ${testUser.token}`,
           });
 
         expect(resp.status).toBe(201);
         expect(resp.body.data._id).toBeDefined();
-        tempGuide = resp.body.data;
+        testGuide = resp.body.data;
         done();
       } catch (error) {
         done(error);
@@ -72,10 +75,40 @@ describe("/guides", function () {
   describe("GET /:guideId", function () {
     it("should return guide by given id", async (done) => {
       try {
-        const resp = await request.get(`${url}/${tempGuide._id}`);
+        const resp = await request.get(`${url}/${testGuide._id}`).set({
+          Authorization: `Bearer ${testUser.token}`,
+        });
 
         expect(resp.status).toBe(200);
         expect(resp.body.data.body).toBeDefined();
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+  });
+
+  describe("PUT /:guideId", function () {
+    it("should set guide post to inactive without error", async (done) => {
+      try {
+        let resp = await request.post(`${BASE_URL}/users/signin`).send({
+          username: "admin@gmail.com",
+          password: process.env.TEST_USER_PASSWORD,
+        });
+
+        const testAdmin = resp.body.data;
+
+        resp = await request
+          .put(`${url}/${testGuide._id}`)
+          .send({
+            active: false,
+          })
+          .set({
+            Authorization: `Bearer ${testAdmin.token}`,
+          });
+
+        expect(resp.status).toBe(200);
+        expect(resp.body.status).toBe("success");
         done();
       } catch (error) {
         done(error);

@@ -37,7 +37,7 @@ function setupIO(io) {
             console.log("video save error", error);
           }
 
-          incidentController.update(incidentId, {
+          incidentController.updateIncident(incidentId, {
             videoEvidence: fileName,
           });
         }

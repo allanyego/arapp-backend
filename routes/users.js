@@ -4,24 +4,28 @@ const bcrypt = require("bcrypt");
 var router = express.Router();
 
 const schema = require("../joi-schemas/user");
+const adminSchema = require("../joi-schemas/admin");
 const createResponse = require("./helpers/create-response");
 const controller = require("../controllers/users");
-const sign = require("./helpers/sign");
 const auth = require("../middleware/auth");
 const isClientError = require("../util/is-client-error");
 const multer = require("../middleware/multer");
+const { USER } = require("../util/constants");
 
-router.get("/", async function (req, res, next) {
+router.get("/", auth, async function (req, res, next) {
   // If request contains `user` query param,
   // the client is asking for USER account type
-  const { username, user } = req.query;
+  const { username, user, unset } = req.query;
+  const isAdmin = res.locals.userAccountType === USER.ACCOUNT_TYPES.ADMIN;
 
   try {
     res.json(
       createResponse({
-        data: await controller.get({
+        data: await controller.find({
           username,
           user,
+          includeInactive: isAdmin,
+          unset: isAdmin && unset,
         }),
       })
     );
@@ -46,7 +50,7 @@ router.get("/picture/:filename", async function (req, res, next) {
   }
 });
 
-router.get("/:userId", async function (req, res, next) {
+router.get("/:userId", auth, async function (req, res, next) {
   try {
     res.json(
       createResponse({
@@ -87,26 +91,65 @@ router.post("/", async function (req, res, next) {
     );
   }
 
-  const hashedPassword = await bcrypt.hash(req.body.password, 3);
-
   try {
-    let newUser = await controller.add({
-      ...req.body,
-      password: hashedPassword,
-    });
+    let hashedPassword;
 
-    newUser = newUser.toJSON();
-    delete newUser.password;
-    newUser.token = sign(newUser);
+    if (req.body.password) {
+      hashedPassword = await bcrypt.hash(
+        req.body.password,
+        Number(process.env.SALT_ROUNDS)
+      );
+    }
 
     res.status(201).json(
       createResponse({
-        data: newUser,
+        data: await controller.create({
+          ...req.body,
+          password: hashedPassword,
+        }),
       })
     );
   } catch (error) {
     if (isClientError(error)) {
-      return res.status(400).json(
+      return res.json(
+        createResponse({
+          error: error.message,
+        })
+      );
+    }
+
+    next(error);
+  }
+});
+
+router.post("/admin", auth, async function (req, res, next) {
+  if (res.locals.userAccountType !== USER.ACCOUNT_TYPES.ADMIN) {
+    return res.status(403).json(
+      createResponse({
+        error: "Unathorized operation",
+      })
+    );
+  }
+
+  try {
+    await schema.newSchema.validateAsync(req.body);
+  } catch (error) {
+    return res.status(400).json(
+      createResponse({
+        error: error.message,
+      })
+    );
+  }
+
+  try {
+    res.status(201).json(
+      createResponse({
+        data: await controller.add(req.body),
+      })
+    );
+  } catch (error) {
+    if (isClientError(error)) {
+      return res.json(
         createResponse({
           error: error.message,
         })
@@ -122,7 +165,11 @@ router.put("/:userId", auth, multer("single", "picture"), async function (
   res,
   next
 ) {
-  if (res.locals.userId !== req.params.userId) {
+  const { userAccountType, userId } = res.locals;
+  const isCurrent = userId === req.params.userId;
+  const isAdmin = userAccountType === USER.ACCOUNT_TYPES.ADMIN;
+
+  if (!isCurrent && !isAdmin) {
     return res.status(401).json(
       createResponse({
         error: "Unauthorized operation.",
@@ -131,7 +178,11 @@ router.put("/:userId", auth, multer("single", "picture"), async function (
   }
 
   try {
-    await schema.editSchema.validateAsync(req.body);
+    if (isAdmin && !isCurrent) {
+      await adminSchema.adminEditSchema.validateAsync(req.body);
+    } else {
+      await schema.editSchema.validateAsync(req.body);
+    }
   } catch (error) {
     return res.status(400).json(
       createResponse({
@@ -143,7 +194,7 @@ router.put("/:userId", auth, multer("single", "picture"), async function (
   try {
     res.json(
       createResponse({
-        data: await controller.update(req.params.userId, {
+        data: await controller.updateUser(req.params.userId, {
           ...req.body,
           file: req.file || null,
         }),

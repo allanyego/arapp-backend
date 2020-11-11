@@ -1,17 +1,34 @@
 const Guide = require("../models/guide");
 const Vote = require("../models/vote");
-const CustomError = require("../util/custom-error");
+const throwError = require("./helpers/throw-error");
+
+// Helper to check entity existence
+async function checkIfExists(title) {
+  if (await Guide.findOne({ title })) {
+    throwError("A guide by that name already exists.");
+  }
+}
 
 async function create(data) {
-  if (await Guide.findOne({ title: data.name })) {
-    throw new CustomError("possible duplicate");
-  }
+  data.title = data.title.toLowerCase();
+  await checkIfExists(data.title);
 
   return await Guide.create(data);
 }
 
-async function find() {
-  return await Guide.find();
+async function find({ search = null, includeInactive = false }) {
+  const opts = {};
+  if (search) {
+    opts.title = {
+      $regex: search,
+    };
+  }
+
+  if (!includeInactive) {
+    opts.active = true;
+  }
+
+  return await Guide.find(opts);
 }
 
 async function findById(_id) {
@@ -21,7 +38,7 @@ async function findById(_id) {
 async function vote({ post, user, isUpvote = true }) {
   const _post = await Guide.findById(post);
   if (!_post) {
-    throw new CustomError("no matching guide post found");
+    throwError("no matching guide post found");
   }
 
   const _vote = await Vote.findOne({ post, user });
@@ -65,10 +82,26 @@ async function getVotes(post, currentUser) {
   };
 }
 
+// TODO check owner
+async function updateGuide(id, data) {
+  const guide = await Guide.findById(id);
+
+  !guide && throwError("No matching guide found.");
+
+  if (data.title) {
+    data.title = data.title.toLowerCase();
+    await checkIfExists(data.title);
+  }
+
+  await guide.updateOne(data);
+  return guide;
+}
+
 module.exports = {
   create,
   find,
   findById,
   vote,
   getVotes,
+  updateGuide,
 };

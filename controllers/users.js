@@ -1,55 +1,147 @@
 const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcrypt");
+const tokenGen = require("generate-sms-verification-code");
 
 const User = require("../models/user");
+const mailer = require("../util/mailer");
 const { USER, PROFILE_PICTURE_FORMATS } = require("../util/constants");
-const CustomError = require("../util/custom-error");
+const throwError = require("./helpers/throw-error");
 const sign = require("../routes/helpers/sign");
+const isProduction = require("../util/is-production");
 
+// Helper to normalize string properties
+const normalizeUser = (data) => {
+  if (data.email) {
+    data.email = data.email.toLowerCase();
+  }
+  if (data.username) {
+    data.username = data.username.toLowerCase();
+  }
+  if (data.fullName) {
+    data.fullName = data.fullName.toLowerCase();
+  }
+
+  return data;
+};
 // Helper function to build filepath
 const getFilePath = (filename) =>
   path.join(__dirname, "..", "uploads", "profile-pics", filename);
 // Helper to check if user attributes are taken
+// Helper to check if user attributes are taken
 const checkIfTaken = async (data) => {
-  if (await User.findOne({ username: data.username })) {
-    throw new CustomError("Username taken.");
+  const { username, email, phone } = data;
+  if (username && (await User.findOne({ username }))) {
+    throwError("Username taken.");
   }
 
-  if (await User.findOne({ email: data.email })) {
-    throw new CustomError("Email in use.");
+  if (email && (await User.findOne({ email: data.email }))) {
+    throwError("Email in use.");
   }
 
-  if (await User.findOne({ phone: data.phone })) {
-    throw new CustomError("Phone number connected to an account.");
+  if (phone && (await User.findOne({ phone: data.phone }))) {
+    throwError("Phone number connected to an account.");
   }
 };
 
-async function add(data) {
+// Helper to create a user
+async function _create(data) {
+  let user = await User.create(data);
+  user = user.toObject();
+  delete user.password;
+  user.token = sign(user);
+  return user;
+}
+
+// Helper to create admin user
+async function createAdmin(data) {
+  // Generate random password
+  const password = isProduction()
+    ? tokenGen(8)
+    : process.env.TEST_USER_PASSWORD;
+  await _create({
+    ...data,
+    requirePasswordChange: true,
+    password: await bcrypt.hash(password, Number(process.env.SALT_ROUNDS)),
+  });
+
+  // Mail the password to user
+  isProduction() &&
+    (await mailer.sendMail({
+      to: email,
+      from: "arapp@gmail.com", // TODO: register sender
+      subject: "Temporary password",
+      text:
+        `Welcome to ARApp's administrative team. ` +
+        `Your temporary password is: ${password}. You ` +
+        `will need to change this on your next sign in.`,
+      html:
+        `Welcome to ARApp's administrative team. ` +
+        `Your temporary password is: <strong>${password}</strong>. You ` +
+        `will need to change this on your next sign in.`,
+    }));
+
+  return "Successfully created user.";
+}
+
+async function create(data) {
+  normalizeUser(data);
+
   await checkIfTaken(data);
+
+  if (data.accountType === USER.ACCOUNT_TYPES.ADMIN) {
+    return createAdmin(data);
+  }
 
   data.gender = data.gender || null;
   data.birthday = data.birthday || null;
-  return await User.create(data);
+  return _create(data);
 }
 
-async function get({ username, user }) {
-  const ops = {};
-  if (user) {
-    ops.accountType = USER.ACCOUNT_TYPES.USER;
+async function find({
+  username,
+  user = false,
+  includeInactive = false,
+  unset = false,
+}) {
+  const opts = {};
+  if (unset) {
+    opts.accountType = null;
   } else {
-    ops.accountType = {
-      $in: [USER.ACCOUNT_TYPES.COUNSELLOR, USER.ACCOUNT_TYPES.HEALTH_FACILITY],
-    };
+    if (user) {
+      opts.accountType = USER.ACCOUNT_TYPES.USER;
+    } else {
+      opts.accountType = {
+        $in: [
+          USER.ACCOUNT_TYPES.COUNSELLOR,
+          USER.ACCOUNT_TYPES.HEALTH_FACILITY,
+        ],
+      };
+    }
   }
 
   if (username) {
-    ops.username = {
+    opts.username = {
       $regex: username,
     };
   }
 
-  return await User.find(ops).select("-password");
+  if (!includeInactive) {
+    opts.active = true;
+  }
+
+  return await User.find(opts).select("-password");
+}
+
+async function findByUsername(username, includeInactive = false) {
+  const opts = {};
+  if (!includeInactive) {
+    opts.active = true;
+  }
+
+  return await User.findOne(opts)
+    .or([{ username: username }, { email: username }])
+    .select("-password");
 }
 
 async function getPicture(filename) {
@@ -67,23 +159,43 @@ async function getPicture(filename) {
   });
 }
 
-async function findByUsername(username) {
-  return await User.findOne()
-    .or([{ username: username }, { email: username }])
-    .select("-password");
-}
+async function updateUser(_id, data) {
+  normalizeUser(data);
 
-async function update(_id, data) {
   await checkIfTaken(data);
+
+  const user = await User.findById(_id);
+
+  if (data.password) {
+    if (!data.newPassword) {
+      throwError("Missing 'newPassword' field.");
+    }
+
+    if (!user) {
+      throwError("No matching user found.");
+    }
+
+    // Compare old password
+    if (await bcrypt.compare(data.password, user.password)) {
+      data.password = await bcrypt.hash(
+        data.newPassword,
+        Number(process.env.SALT_ROUNDS)
+      );
+
+      await user.updateOne({
+        requirePasswordChange: false,
+      });
+    }
+  }
+
+  const response = {};
   // Check it has a test file
   if (data.file) {
     if (!PROFILE_PICTURE_FORMATS.includes(data.file.mimetype)) {
-      throw new CustomError(
+      throwError(
         "file format should be one of: " + PROFILE_PICTURE_FORMATS.join(", ")
       );
     }
-
-    const user = await User.findById(_id);
 
     const ext = data.file.originalname.split(".").pop();
     const fileName = `${user.username}.${ext}`;
@@ -114,12 +226,12 @@ async function update(_id, data) {
       }
     );
 
-    return {
-      picture: fileName,
-    };
+    response.picture = fileName;
+  } else {
+    await User.updateOne({ _id }, data);
   }
 
-  return await User.updateOne({ _id }, data);
+  return response;
 }
 
 async function findById(_id) {
@@ -134,7 +246,7 @@ async function authenticate(data) {
   ]);
 
   if (!user) {
-    throw new CustomError("no user found matching credentials");
+    throwError("no user found matching credentials");
   }
 
   if (await bcrypt.compare(password, user.password)) {
@@ -144,16 +256,16 @@ async function authenticate(data) {
     user.token = sign(user);
     return user;
   } else {
-    throw new CustomError("invalid credentials");
+    throwError("invalid credentials");
   }
 }
 
 module.exports = {
-  add,
-  get,
+  create,
+  find,
   getPicture,
   findByUsername,
-  update,
+  updateUser,
   findById,
   authenticate,
 };

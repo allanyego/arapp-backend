@@ -1,6 +1,6 @@
 const Thread = require("../models/thread");
 const Message = require("../models/message");
-const CustomError = require("../util/custom-error");
+const throwError = require("./helpers/throw-error");
 
 async function addMessage(data) {
   let thread, lastMessage;
@@ -8,7 +8,7 @@ async function addMessage(data) {
   if (data.thread) {
     thread = await Thread.findById(data.thread);
     if (!thread) {
-      return new CustomError("no thread by that identifier found");
+      throwError("no thread by that identifier found");
     }
 
     lastMessage = await Message.create(data);
@@ -47,7 +47,7 @@ async function addMessage(data) {
 
 async function addPublicThread(data) {
   if (await Thread.findOne({ name: data.name, participants: null })) {
-    throw new CustomError("thread by name exists");
+    throwError("thread by name exists");
   }
 
   return await Thread.create(data);

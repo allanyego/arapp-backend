@@ -3,16 +3,22 @@ var router = express.Router();
 
 const auth = require("../middleware/auth");
 const schema = require("../joi-schemas/guide");
+const adminSchema = require("../joi-schemas/admin");
 const createResponse = require("./helpers/create-response");
 const controller = require("../controllers/guides");
 const isClientError = require("../util/is-client-error");
 const { USER } = require("../util/constants");
 
-router.get("/", async function (req, res, next) {
+router.get("/", auth, async function (req, res, next) {
+  const isAdmin = res.locals.userAccountType === USER.ACCOUNT_TYPES.ADMIN;
+
   try {
     res.json(
       createResponse({
-        data: await controller.find(),
+        data: await controller.find({
+          search: req.query.search || null,
+          includeInactive: isAdmin,
+        }),
       })
     );
   } catch (error) {
@@ -20,7 +26,7 @@ router.get("/", async function (req, res, next) {
   }
 });
 
-router.get("/:guideId", async function (req, res, next) {
+router.get("/:guideId", auth, async function (req, res, next) {
   try {
     res.json(
       createResponse({
@@ -93,6 +99,44 @@ router.post("/votes/:postId", auth, async function (req, res, next) {
           user: res.locals.userId,
           ...req.body,
         }),
+      })
+    );
+  } catch (error) {
+    if (isClientError(error)) {
+      return res.json(
+        createResponse({
+          error: error.message,
+        })
+      );
+    }
+
+    next(error);
+  }
+});
+
+// Update guide details
+router.put("/:guide", auth, async function (req, res, next) {
+  const accType = res.locals.userAccountType;
+  const isAdmin = accType === USER.ACCOUNT_TYPES.ADMIN;
+
+  try {
+    if (isAdmin) {
+      await adminSchema.adminEditSchema.validateAsync(req.body);
+    } else {
+      await schema.editSchema.validateAsync(req.body);
+    }
+  } catch (error) {
+    return res.status(400).json(
+      createResponse({
+        error: error.message,
+      })
+    );
+  }
+
+  try {
+    res.json(
+      createResponse({
+        data: await controller.updateGuide(req.params.conditionId, req.body),
       })
     );
   } catch (error) {

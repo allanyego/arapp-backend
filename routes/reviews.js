@@ -23,6 +23,8 @@ router.get("/:userId?", auth, async (req, res, next) => {
     opts.forUser = res.locals.userId;
   }
 
+  console.log("request opts", opts, rating);
+
   try {
     res.json(
       createResponse({

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.1.13",
+    "@sendgrid/mail": "^7.4.0",
     "africastalking": "^0.5.2",
     "bcrypt": "^5.0.0",
     "cookie-parser": "~1.4.4",
@@ -16,6 +17,7 @@
     "debug": "~2.6.9",
     "dotenv": "^8.2.0",
     "express": "~4.16.1",
+    "generate-sms-verification-code": "^1.0.5",
     "joi": "^17.2.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.7",

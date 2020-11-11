@@ -3,7 +3,7 @@ const {
 } = require("mongoose");
 const Review = require("../models/review");
 const User = require("../models/user");
-const CustomError = require("../util/custom-error");
+const throwError = require("./helpers/throw-error");
 
 async function add({ forUser, byUser, rating, feedback }) {
   const _review = await Review.findOne({ forUser, byUser });
@@ -16,7 +16,7 @@ async function add({ forUser, byUser, rating, feedback }) {
 
   let user = await User.findById(forUser);
   if (!user) {
-    throw new CustomError("no matching user found");
+    throwError("no matching user found");
   }
 
   return await Review.create({

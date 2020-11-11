@@ -1,6 +1,5 @@
 const Favorite = require("../models/favorite");
 const User = require("../models/user");
-const CustomError = require("../util/custom-error");
 const { USER } = require("../util/constants");
 
 async function favorite({ user, favorited }) {
@@ -23,7 +22,7 @@ async function favorite({ user, favorited }) {
     !toFav ||
     (toFav.accountType && toFav.accountType === USER.ACCOUNT_TYPES.PATIENT)
   ) {
-    throw new CustomError("no professional by that id found");
+    throwError("no professional by that id found");
   }
 
   return await Favorite.create({

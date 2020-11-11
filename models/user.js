@@ -2,13 +2,22 @@ const mongoose = require("mongoose");
 
 const constants = require("../util/constants");
 
-const { USER, COUNSELLOR, HEALTH_FACILITY } = constants.USER.ACCOUNT_TYPES;
+const {
+  USER,
+  COUNSELLOR,
+  HEALTH_FACILITY,
+  ADMIN,
+} = constants.USER.ACCOUNT_TYPES;
 
 const userSchema = new mongoose.Schema(
   {
+    active: {
+      type: Boolean,
+      default: true,
+    },
     accountType: {
       type: String,
-      enum: [COUNSELLOR, USER, HEALTH_FACILITY],
+      enum: [COUNSELLOR, USER, HEALTH_FACILITY, ADMIN],
       required: true,
     },
     fullName: {
@@ -50,6 +59,10 @@ const userSchema = new mongoose.Schema(
     experience: {
       type: Number,
       default: null,
+    },
+    requirePasswordChange: {
+      type: Boolean,
+      default: false,
     },
     speciality: {
       type: String,
