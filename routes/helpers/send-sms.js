@@ -1,3 +1,5 @@
+const isProduction = require("../../util/is-production");
+
 const AT = require("africastalking")({
   apiKey: process.env.AT_API_KEY,
   username: process.env.AT_USERNAME,
@@ -41,16 +43,18 @@ const sendSms = async ({
   locationName,
   latlng,
 }) => {
-  return await AT.SMS.send({
-    to: [recipientPhone],
-    message: createMessage({
-      recipient,
-      sender,
-      senderPhone,
-      locationName,
-      latlng,
-    }),
-  });
+  return isProduction()
+    ? await AT.SMS.send({
+        to: [recipientPhone],
+        message: createMessage({
+          recipient,
+          sender,
+          senderPhone,
+          locationName,
+          latlng,
+        }),
+      })
+    : true;
 };
 
 module.exports = sendSms;

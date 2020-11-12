@@ -9,6 +9,7 @@ const { USER, PROFILE_PICTURE_FORMATS } = require("../util/constants");
 const throwError = require("./helpers/throw-error");
 const sign = require("../routes/helpers/sign");
 const isProduction = require("../util/is-production");
+const CustomError = require("../util/custom-error");
 
 // Helper to normalize string properties
 const normalizeUser = (data) => {
@@ -149,8 +150,9 @@ async function getPicture(filename) {
     fs.readFile(getFilePath(filename), (err, data) => {
       if (err) {
         if (err.code === "ENOENT") {
-          throwError(err.message);
+          reject(new CustomError(err.message));
         }
+
         reject(err);
       }
 

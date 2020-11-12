@@ -22,6 +22,8 @@ const editSchema = Joi.object({
   phone: Joi.string().pattern(REGEX.PHONE).trim(),
   education: Joi.array().items(
     Joi.object({
+      _id: Joi.string(),
+      id: Joi.any(),
       institution: Joi.string(),
       areaOfStudy: Joi.string(),
       startDate: Joi.string(),
