@@ -5,6 +5,7 @@ const router = express.Router();
 const schema = require("../joi-schemas/review");
 const createResponse = require("./helpers/create-response");
 const controller = require("../controllers/reviews");
+const userController = require("../controllers/users");
 const auth = require("../middleware/auth");
 const isClientError = require("../util/is-client-error");
 const { USER } = require("../util/constants");
@@ -23,8 +24,6 @@ router.get("/:userId?", auth, async (req, res, next) => {
     opts.forUser = res.locals.userId;
   }
 
-  console.log("request opts", opts, rating);
-
   try {
     res.json(
       createResponse({
@@ -40,6 +39,9 @@ router.get("/:userId?", auth, async (req, res, next) => {
 });
 
 router.post("/:userId", auth, async function (req, res, next) {
+  await userController.checkIfInactive(res.locals.userId);
+  await userController.checkIfInactive(req.params.userId);
+
   if (res.locals.userAccountType !== USER.ACCOUNT_TYPES.USER) {
     return res.status(401).json(
       createResponse({

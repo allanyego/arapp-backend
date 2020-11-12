@@ -149,7 +149,7 @@ async function getPicture(filename) {
     fs.readFile(getFilePath(filename), (err, data) => {
       if (err) {
         if (err.code === "ENOENT") {
-          reject(new CustomError(err.message));
+          throwError(err.message);
         }
         reject(err);
       }
@@ -260,8 +260,15 @@ async function authenticate(data) {
   }
 }
 
+async function checkIfInactive(_id) {
+  const user = await findById(_id);
+  !user && throwError("No matching user found.");
+  !user.active && throwError("User account is inactive.");
+}
+
 module.exports = {
   create,
+  checkIfInactive,
   find,
   getPicture,
   findByUsername,

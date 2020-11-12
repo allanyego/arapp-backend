@@ -4,6 +4,7 @@ var router = express.Router();
 const schema = require("../joi-schemas/message");
 const createResponse = require("./helpers/create-response");
 const controller = require("../controllers/threads");
+const userController = require("../controllers/users");
 const auth = require("../middleware/auth");
 const isClientError = require("../util/is-client-error");
 
@@ -53,6 +54,8 @@ router.get("/:threadId", auth, async function (req, res, next) {
 });
 
 router.post("/", auth, async function (req, res, next) {
+  await userController.checkIfInactive(res.locals.userId);
+
   try {
     await schema.newSchema.validateAsync(req.body);
   } catch (error) {
@@ -83,6 +86,8 @@ router.post("/", auth, async function (req, res, next) {
 });
 
 router.post("/public", auth, async function (req, res, next) {
+  await userController.checkIfInactive(res.locals.userId);
+
   try {
     await schema.publicThreadSchema.validateAsync(req.body);
   } catch (error) {

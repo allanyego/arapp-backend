@@ -6,6 +6,7 @@ const schema = require("../joi-schemas/guide");
 const adminSchema = require("../joi-schemas/admin");
 const createResponse = require("./helpers/create-response");
 const controller = require("../controllers/guides");
+const userController = require("../controllers/users");
 const isClientError = require("../util/is-client-error");
 const { USER } = require("../util/constants");
 
@@ -51,6 +52,8 @@ router.get("/votes/:postId", auth, async function (req, res, next) {
 });
 
 router.post("/", auth, async function (req, res, next) {
+  await userController.checkIfInactive(res.locals.userId);
+
   try {
     await schema.newSchema.validateAsync(req.body);
   } catch (error) {
@@ -81,6 +84,8 @@ router.post("/", auth, async function (req, res, next) {
 });
 
 router.post("/votes/:postId", auth, async function (req, res, next) {
+  await userController.checkIfInactive(res.locals.userId);
+
   try {
     await schema.voteSchema.validateAsync(req.body);
   } catch (error) {
@@ -115,7 +120,9 @@ router.post("/votes/:postId", auth, async function (req, res, next) {
 });
 
 // Update guide details
-router.put("/:guide", auth, async function (req, res, next) {
+router.put("/:guideId", auth, async function (req, res, next) {
+  await userController.checkIfInactive(res.locals.userId);
+
   const accType = res.locals.userAccountType;
   const isAdmin = accType === USER.ACCOUNT_TYPES.ADMIN;
 
@@ -136,7 +143,7 @@ router.put("/:guide", auth, async function (req, res, next) {
   try {
     res.json(
       createResponse({
-        data: await controller.updateGuide(req.params.conditionId, req.body),
+        data: await controller.updateGuide(req.params.guideId, req.body),
       })
     );
   } catch (error) {
