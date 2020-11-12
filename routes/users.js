@@ -38,9 +38,7 @@ router.get("/picture/:filename", async function (req, res, next) {
   const { filename } = req.params;
 
   try {
-    setTimeout(async () => {
-      res.send(await controller.getPicture(filename));
-    }, 10000);
+    res.send(await controller.getPicture(filename));
   } catch (error) {
     if (isClientError(error)) {
       return res.sendStatus(404);
