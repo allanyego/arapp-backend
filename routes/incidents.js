@@ -78,6 +78,7 @@ router.post("/", auth, async function (req, res, next) {
   try {
     await schema.newSchema.validateAsync(req.body);
   } catch (error) {
+    console.log("sos validatione rror", error);
     return res.status(400).json(
       createResponse({
         error: error.message,
@@ -125,12 +126,13 @@ router.post("/", auth, async function (req, res, next) {
         );
       })
       .catch(async (error) => {
+        console.log("Send sms error", error);
         const incident = await controller.add({
           sendSuccess: false,
           ...req.body,
         });
 
-        return res.status(400).json(
+        return res.json(
           createResponse({
             data: incident,
           })
