@@ -90,7 +90,13 @@ router.post("/", auth, async function (req, res, next) {
 
     const { contact } = req.body;
     const user = await userController.findById(req.body.user);
-    console.log("user", user, "sending alert");
+    if (!user) {
+      return res.json(
+        createResponse({
+          error: "Operation allowed for app users only.",
+        })
+      );
+    }
 
     await sendSms({
       recipient: contact.displayName,
@@ -123,13 +129,12 @@ router.post("/", auth, async function (req, res, next) {
           sendSuccess: false,
           ...req.body,
         });
+
         return res.status(400).json(
           createResponse({
-            error: error.message,
+            data: incident,
           })
         );
-
-        // throw error;
       });
 
     // nexmo.message.sendSms(
@@ -173,8 +178,6 @@ router.post("/", auth, async function (req, res, next) {
         })
       );
     }
-
-    console.log("what's happening here?", error);
 
     next(error);
   }
