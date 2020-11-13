@@ -118,10 +118,10 @@ router.post("/", auth, async function (req, res, next) {
         );
       })
       .catch(async (error) => {
-        // const incident = await controller.add({
-        //   sendSuccess: false,
-        //   ...req.body,
-        // });
+        const incident = await controller.add({
+          sendSuccess: false,
+          ...req.body,
+        });
         return res.status(400).json(
           createResponse({
             error: error.message,

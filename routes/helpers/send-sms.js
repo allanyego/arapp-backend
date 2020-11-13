@@ -43,18 +43,19 @@ const sendSms = async ({
   locationName,
   latlng,
 }) => {
-  return isProduction()
-    ? await AT.SMS.send({
-        to: [recipientPhone],
-        message: createMessage({
-          recipient,
-          sender,
-          senderPhone,
-          locationName,
-          latlng,
-        }),
-      })
-    : true;
+  // return isProduction()
+  //   ? await AT.SMS.send({
+  //       to: [recipientPhone],
+  //       message: createMessage({
+  //         recipient,
+  //         sender,
+  //         senderPhone,
+  //         locationName,
+  //         latlng,
+  //       }),
+  //     })
+  //   : true;
+  return true;
 };
 
 module.exports = sendSms;
