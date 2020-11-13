@@ -90,6 +90,7 @@ router.post("/", auth, async function (req, res, next) {
 
     const { contact } = req.body;
     const user = await userController.findById(req.body.user);
+    console.log("user", user, "sending alert");
 
     await sendSms({
       recipient: contact.displayName,
