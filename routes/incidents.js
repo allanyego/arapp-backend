@@ -173,6 +173,8 @@ router.post("/", auth, async function (req, res, next) {
       );
     }
 
+    console.log("what's happening here?", error);
+
     next(error);
   }
 });
