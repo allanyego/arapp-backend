@@ -12,12 +12,9 @@ const sendSms = require("./helpers/send-sms");
 const signUrl = require("./helpers/sign-url");
 const verifyRequest = require("./helpers/verify-request");
 const sendVideo = require("../middleware/send-video");
+const { INCIDENT_TYPES } = require("../util/constants");
 
 const mapsClient = new Client();
-// const nexmo = new Nexmo({
-//   apiKey: process.env.VONAGE_API_KEY,
-//   apiSecret: process.env.VONAGE_API_SECRET,
-// });
 
 const router = express.Router();
 
@@ -78,10 +75,17 @@ router.post("/", auth, async function (req, res, next) {
   try {
     await schema.newSchema.validateAsync(req.body);
   } catch (error) {
-    console.log("sos validatione rror", error);
     return res.status(400).json(
       createResponse({
         error: error.message,
+      })
+    );
+  }
+
+  if (res.locals.userId !== req.body.user) {
+    return res.status(401).json(
+      createResponse({
+        error: "Unauthorized operation.",
       })
     );
   }
@@ -111,25 +115,27 @@ router.post("/", auth, async function (req, res, next) {
       },
     })
       .then(async (response) => {
-        const incident = await controller.add({
-          sendSuccess: true,
+        const incident = await controller.create({
           ...req.body,
+          sendSuccess: true,
+          type: INCIDENT_TYPES.SMS,
         });
 
         res.status(201).json(
           createResponse({
             data: {
               ...response,
-              ...incident.toJSON(),
+              ...incident.toObject(),
             },
           })
         );
       })
       .catch(async (error) => {
-        console.log("Send sms error", error);
-        const incident = await controller.add({
-          sendSuccess: false,
+        console.log("SMS error", error);
+        const incident = await controller.create({
           ...req.body,
+          sendSuccess: false,
+          type: INCIDENT_TYPES.SMS,
         });
 
         return res.json(
@@ -138,40 +144,6 @@ router.post("/", auth, async function (req, res, next) {
           })
         );
       });
-
-    // nexmo.message.sendSms(
-    //   user.phone,
-    //   contact.phone,
-    //   text,
-    //   async (err, responseData) => {
-    //     let sendSuccess = false,
-    //       errorText;
-
-    //     if (err) {
-    //       errorText = err.message;
-    //     } else {
-    //       if (responseData.messages[0]["status"] === "0") {
-    //         sendSuccess = true;
-    //       } else {
-    //         errorText = responseData.messages[0]["error-text"];
-    //       }
-    //     }
-
-    //     const incident = await controller.add({
-    //       sendSuccess,
-    //       ...req.body,
-    //     });
-
-    //     res.status(201).json(
-    //       createResponse({
-    //         data: {
-    //           errorText,
-    //           ...incident.toJSON(),
-    //         },
-    //       })
-    //     );
-    //   }
-    // );
   } catch (error) {
     if (isClientError(error)) {
       return res.status(400).json(

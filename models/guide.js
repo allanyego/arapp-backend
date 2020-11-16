@@ -14,9 +14,6 @@ const guideSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    tags: {
-      type: [String],
-    },
     links: {
       type: [String],
     },

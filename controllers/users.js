@@ -70,7 +70,7 @@ async function createAdmin(data) {
   isProduction() &&
     (await mailer.sendMail({
       to: email,
-      from: "arapp@gmail.com", // TODO: register sender
+      from: "safe360ke@gmail.com", // TODO: register sender
       subject: "Temporary password",
       text:
         `Welcome to ARApp's administrative team. ` +
@@ -99,26 +99,14 @@ async function create(data) {
   return _create(data);
 }
 
-async function find({
-  username,
-  user = false,
-  includeInactive = false,
-  unset = false,
-}) {
+async function find({ username, user = false, includeInactive = false }) {
   const opts = {};
-  if (unset) {
-    opts.accountType = null;
+  if (user) {
+    opts.accountType = USER.ACCOUNT_TYPES.USER;
   } else {
-    if (user) {
-      opts.accountType = USER.ACCOUNT_TYPES.USER;
-    } else {
-      opts.accountType = {
-        $in: [
-          USER.ACCOUNT_TYPES.COUNSELLOR,
-          USER.ACCOUNT_TYPES.HEALTH_FACILITY,
-        ],
-      };
-    }
+    opts.accountType = {
+      $in: [USER.ACCOUNT_TYPES.COUNSELLOR, USER.ACCOUNT_TYPES.HEALTH_FACILITY],
+    };
   }
 
   if (username) {

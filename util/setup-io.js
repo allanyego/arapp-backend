@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const incidentController = require("../controllers/incidents");
+const { INCIDENT_TYPES } = require("./constants");
 
 /**
  * Setup events and callbacks for the application's socket.io
@@ -16,6 +17,10 @@ function setupIO(io) {
 
     // Setup video collection
     let videoUploads = {};
+
+    function deleteKey(key) {
+      delete videoUploads[key];
+    }
 
     function saveVideo(incidentId) {
       const fileName = `${incidentId}.webm`;
@@ -32,14 +37,18 @@ function setupIO(io) {
         {
           encoding: null,
         },
-        (err) => {
+        async (err) => {
           if (err) {
             console.log("video save error", error);
+            deleteKey(incidentId);
           }
 
-          incidentController.updateIncident(incidentId, {
+          await incidentController.create({
+            type: INCIDENT_TYPES.VIDEO,
             videoEvidence: fileName,
+            user: socket.customId,
           });
+          deleteKey(incidentId);
         }
       );
     }
@@ -90,7 +99,6 @@ function setupIO(io) {
       }
 
       saveVideo(incidentId);
-      delete videoUploads[incidentId];
     });
 
     // Socket disconnected
@@ -99,8 +107,6 @@ function setupIO(io) {
       for (let incident in videoUploads) {
         saveVideo(incident);
       }
-
-      videoUploads = {};
 
       socket.broadcast.emit("disconnected", {
         userId: socket.customId,

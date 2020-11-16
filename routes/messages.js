@@ -54,8 +54,6 @@ router.get("/:threadId", auth, async function (req, res, next) {
 });
 
 router.post("/", auth, async function (req, res, next) {
-  await userController.checkIfInactive(res.locals.userId);
-
   try {
     await schema.newSchema.validateAsync(req.body);
   } catch (error) {
@@ -67,6 +65,7 @@ router.post("/", auth, async function (req, res, next) {
   }
 
   try {
+    await userController.checkIfInactive(res.locals.userId);
     res.status(201).json(
       createResponse({
         data: await controller.addMessage(req.body),
@@ -86,8 +85,6 @@ router.post("/", auth, async function (req, res, next) {
 });
 
 router.post("/public", auth, async function (req, res, next) {
-  await userController.checkIfInactive(res.locals.userId);
-
   try {
     await schema.publicThreadSchema.validateAsync(req.body);
   } catch (error) {
@@ -99,6 +96,7 @@ router.post("/public", auth, async function (req, res, next) {
   }
 
   try {
+    await userController.checkIfInactive(res.locals.userId);
     res.status(201).json(
       createResponse({
         data: await controller.addPublicThread(req.body),

@@ -14,7 +14,7 @@ lorem
 ipsum
 honor
 `,
-  tags: ["trauma", "redemption"],
+  links: ["link1, https://someling.one", "link2: https://somelink.redemption"],
 };
 
 afterAll(async function () {

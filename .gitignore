@@ -105,3 +105,10 @@ dist
 
 # Google Calendar credentials file
 token.json
+
+# test upload files
+uploads/videos/**.webm
+uploads/profile-pics/**.jpeg
+uploads/profile-pics/**.jpg
+uploads/profile-pics/**.png
+uploads/profile-pics/**.gif

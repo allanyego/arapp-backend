@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const { INCIDENT_TYPES } = require("../util/constants");
+
 const incidentSchema = new mongoose.Schema(
   {
     user: {
@@ -22,6 +24,11 @@ const incidentSchema = new mongoose.Schema(
           required: true,
         },
       },
+      default: null,
+    },
+    type: {
+      type: String,
+      enum: [INCIDENT_TYPES.SMS, INCIDENT_TYPES.VIDEO],
       required: true,
     },
     videoEvidence: {
@@ -33,11 +40,11 @@ const incidentSchema = new mongoose.Schema(
         displayName: String,
         phone: String,
       },
-      required: true,
+      default: null,
     },
     sendSuccess: {
       type: Boolean,
-      required: true,
+      default: false,
     },
   },
   {

@@ -52,8 +52,6 @@ router.get("/votes/:postId", auth, async function (req, res, next) {
 });
 
 router.post("/", auth, async function (req, res, next) {
-  await userController.checkIfInactive(res.locals.userId);
-
   try {
     await schema.newSchema.validateAsync(req.body);
   } catch (error) {
@@ -65,6 +63,7 @@ router.post("/", auth, async function (req, res, next) {
   }
 
   try {
+    await userController.checkIfInactive(res.locals.userId);
     res.status(201).json(
       createResponse({
         data: await controller.create(req.body),
@@ -84,8 +83,6 @@ router.post("/", auth, async function (req, res, next) {
 });
 
 router.post("/votes/:postId", auth, async function (req, res, next) {
-  await userController.checkIfInactive(res.locals.userId);
-
   try {
     await schema.voteSchema.validateAsync(req.body);
   } catch (error) {
@@ -97,6 +94,7 @@ router.post("/votes/:postId", auth, async function (req, res, next) {
   }
 
   try {
+    await userController.checkIfInactive(res.locals.userId);
     res.status(200).json(
       createResponse({
         data: await controller.vote({
@@ -121,8 +119,6 @@ router.post("/votes/:postId", auth, async function (req, res, next) {
 
 // Update guide details
 router.put("/:guideId", auth, async function (req, res, next) {
-  await userController.checkIfInactive(res.locals.userId);
-
   const accType = res.locals.userAccountType;
   const isAdmin = accType === USER.ACCOUNT_TYPES.ADMIN;
 
@@ -141,6 +137,8 @@ router.put("/:guideId", auth, async function (req, res, next) {
   }
 
   try {
+    await userController.checkIfInactive(res.locals.userId);
+
     res.json(
       createResponse({
         data: await controller.updateGuide(req.params.guideId, req.body),

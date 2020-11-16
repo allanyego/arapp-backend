@@ -20,7 +20,13 @@ const REGEX = {
   PHONE: /^\+(?:[0-9]\x20?){6,14}[0-9]$/,
 };
 
+const INCIDENT_TYPES = {
+  SMS: "SMS",
+  VIDEO: "VIDEO",
+};
+
 module.exports = {
+  INCIDENT_TYPES,
   USER,
   PROFILE_PICTURE_FORMATS,
   REGEX,

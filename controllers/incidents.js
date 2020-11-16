@@ -1,6 +1,6 @@
 const Incident = require("../models/incident");
 
-async function add(data) {
+async function create(data) {
   return await Incident.create(data);
 }
 
@@ -19,7 +19,7 @@ async function updateIncident(_id, data) {
 }
 
 module.exports = {
-  add,
+  create,
   findById,
   getUserIncidents,
   updateIncident,

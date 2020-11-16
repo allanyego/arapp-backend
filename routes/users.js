@@ -15,7 +15,7 @@ const { USER } = require("../util/constants");
 router.get("/", auth, async function (req, res, next) {
   // If request contains `user` query param,
   // the client is asking for USER account type
-  const { username, user, unset } = req.query;
+  const { username, user } = req.query;
   const isAdmin = res.locals.userAccountType === USER.ACCOUNT_TYPES.ADMIN;
 
   try {
@@ -25,7 +25,6 @@ router.get("/", auth, async function (req, res, next) {
           username,
           user,
           includeInactive: isAdmin,
-          unset: isAdmin && unset,
         }),
       })
     );

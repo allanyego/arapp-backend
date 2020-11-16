@@ -39,17 +39,6 @@ router.get("/:userId?", auth, async (req, res, next) => {
 });
 
 router.post("/:userId", auth, async function (req, res, next) {
-  await userController.checkIfInactive(res.locals.userId);
-  await userController.checkIfInactive(req.params.userId);
-
-  if (res.locals.userAccountType !== USER.ACCOUNT_TYPES.USER) {
-    return res.status(401).json(
-      createResponse({
-        error: "unauthorized operation: allowed for patients",
-      })
-    );
-  }
-
   try {
     await schema.newSchema.validateAsync(req.body);
   } catch (error) {
@@ -61,6 +50,8 @@ router.post("/:userId", auth, async function (req, res, next) {
   }
 
   try {
+    await userController.checkIfInactive(res.locals.userId);
+    await userController.checkIfInactive(req.params.userId);
     res.status(201).json(
       createResponse({
         data: await controller.add({
