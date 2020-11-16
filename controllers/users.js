@@ -69,7 +69,7 @@ async function createAdmin(data) {
   // Mail the password to user
   isProduction() &&
     (await mailer.sendMail({
-      to: email,
+      to: data.email,
       from: "safe360ke@gmail.com", // TODO: register sender
       subject: "Temporary password",
       text:
