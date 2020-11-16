@@ -186,7 +186,7 @@ describe("/users", function () {
         });
 
         expect(resp.status).toBe(200);
-        expect(resp.body.data.length).toBe(3);
+        expect(resp.body.data.length).toBe(2);
         done();
       } catch (error) {
         done(error);
