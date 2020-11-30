@@ -33,6 +33,24 @@ router.get("/", auth, async function (req, res, next) {
   }
 });
 
+router.get("/police", auth, async function (req, res, next) {
+  const { username } = req.query;
+  const isAdmin = res.locals.userAccountType === USER.ACCOUNT_TYPES.ADMIN;
+
+  try {
+    res.json(
+      createResponse({
+        data: await controller.findPolice({
+          username,
+          includeInactive: isAdmin,
+        }),
+      })
+    );
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/picture/:filename", async function (req, res, next) {
   const { filename } = req.params;
 

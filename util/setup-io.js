@@ -82,6 +82,14 @@ function setupIO(io) {
       });
     });
 
+    // Handle alerts
+    socket.on("alert", ({ alert }) =>
+      socket.broadcast.emit("alert", { alert })
+    );
+    socket.on("respond", ({ alert }) =>
+      socket.broadcast.emit("respond", { alert })
+    );
+
     // Handle videos sent for evidence
     socket.on("video-evidence", ({ incidentId, chunk }) => {
       const _chunk = new Uint8Array(chunk);

@@ -1,5 +1,6 @@
 var express = require("express");
 
+const appointmentsRouter = require("./appointments");
 const usersRouter = require("./users");
 const guidesRouter = require("./guides");
 const incidentsRouter = require("./incidents");
@@ -9,6 +10,7 @@ const reviewsRouter = require("./reviews");
 
 var router = express.Router();
 
+router.use("/appointments", appointmentsRouter);
 router.use("/users", usersRouter);
 router.use("/guides", guidesRouter);
 router.use("/incidents", incidentsRouter);

@@ -7,6 +7,7 @@ const {
   COUNSELLOR,
   HEALTH_FACILITY,
   ADMIN,
+  LAW_ENFORCER,
 } = constants.USER.ACCOUNT_TYPES;
 
 const userSchema = new mongoose.Schema(
@@ -17,7 +18,7 @@ const userSchema = new mongoose.Schema(
     },
     accountType: {
       type: String,
-      enum: [COUNSELLOR, USER, HEALTH_FACILITY, ADMIN],
+      enum: [COUNSELLOR, USER, HEALTH_FACILITY, ADMIN, LAW_ENFORCER],
       required: true,
     },
     fullName: {

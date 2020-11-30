@@ -122,15 +122,31 @@ async function find({ username, user = false, includeInactive = false }) {
   return await User.find(opts).select("-password");
 }
 
-async function findByUsername(username, includeInactive = false) {
-  const opts = {};
+async function findPolice({ username, includeInactive = false }) {
+  const opts = {
+    accountType: USER.ACCOUNT_TYPES.LAW_ENFORCER,
+  };
+
+  if (username) {
+    opts.$or = [
+      {
+        username: {
+          $regex: username,
+        },
+      },
+      {
+        name: {
+          $regex: username,
+        },
+      },
+    ];
+  }
+
   if (!includeInactive) {
     opts.active = true;
   }
 
-  return await User.findOne(opts)
-    .or([{ username: username }, { email: username }])
-    .select("-password");
+  return await User.find(opts).select("-password");
 }
 
 async function getPicture(filename) {
@@ -261,7 +277,7 @@ module.exports = {
   checkIfInactive,
   find,
   getPicture,
-  findByUsername,
+  findPolice,
   updateUser,
   findById,
   authenticate,

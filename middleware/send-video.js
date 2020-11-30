@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const Incident = require("../models/incident");
+const VideoShare = require("../models/video-share");
 
 async function sendVideo(req, res, next) {
   const MAX_CHUNK_SIZE = 1024 * 1024;
@@ -9,16 +10,25 @@ async function sendVideo(req, res, next) {
   const { userId } = res.locals;
   const filePath = path.join(__dirname, "..", "uploads", "videos", filename);
 
-  // Check if this is the user's incident
+  // Check if this is the user's incident or is a cop
+  // requesting
   try {
     const incident = await Incident.findOne({
       videoEvidence: filename,
     });
+
     if (!incident) {
       return res.sendStatus(404);
     }
 
-    if (String(incident.user) !== userId) {
+    const share = await VideoShare.findOne({
+      incident: incident._id,
+    });
+    const isAuthorized =
+      String(incident.user) === userId ||
+      (share && String(share.shareTo) === userId);
+
+    if (!isAuthorized) {
       return res.sendStatus(403);
     }
   } catch (error) {

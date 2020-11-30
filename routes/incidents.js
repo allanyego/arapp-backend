@@ -6,6 +6,7 @@ const auth = require("../middleware/auth");
 const schema = require("../joi-schemas/incident");
 const createResponse = require("./helpers/create-response");
 const controller = require("../controllers/incidents");
+const videoShareController = require("../controllers/video-shares");
 const userController = require("../controllers/users");
 const isClientError = require("../util/is-client-error");
 const sendSms = require("./helpers/send-sms");
@@ -46,6 +47,67 @@ router.get("/video/token", auth, async (req, res, next) => {
       })
     );
   } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/video/shares/:userId", auth, async (req, res, next) => {
+  if (res.locals.userId !== req.params.userId) {
+    return res.status(401).json(
+      createResponse({
+        error: "Unauthorized access.",
+      })
+    );
+  }
+
+  try {
+    res.json(
+      createResponse({
+        data: await videoShareController.findByUser(res.locals.userId),
+      })
+    );
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/video/shares/:incidentId", auth, async (req, res, next) => {
+  if (!req.body.shareTo) {
+    return res.status(400).json(
+      createResponse({
+        error: "'shareTo' is required.",
+      })
+    );
+  }
+
+  try {
+    const incident = await controller.findById(req.params.incidentId);
+    if (String(incident.user) !== res.locals.userId) {
+      return res.status(401).json(
+        createResponse({
+          error: "Unauthorized operation.",
+        })
+      );
+    }
+
+    res.status(201).json(
+      createResponse({
+        data: await videoShareController.create({
+          ...req.body,
+          incident: incident._id,
+          user: res.locals.userId,
+        }),
+      })
+    );
+  } catch (error) {
+    if (isClientError(error)) {
+      return res.status(400).json(
+        createResponse({
+          error: error.message,
+        })
+      );
+    }
+
     next(error);
   }
 });
