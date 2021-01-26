@@ -213,13 +213,13 @@ async function updateUser(_id, data) {
         }
 
         // Delete previous picture
-        if (user.picture) {
-          fs.unlink(getFilePath(user.picture), (error) => {
-            if (error) {
-              console.log("There was an error deleting the old file");
-            }
-          });
-        }
+        // if (user.picture) {
+        //   fs.unlink(getFilePath(user.picture), (error) => {
+        //     if (error) {
+        //       console.log("There was an error deleting the old file");
+        //     }
+        //   });
+        // }
         resolve();
       });
     });

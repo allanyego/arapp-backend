@@ -219,6 +219,28 @@ router.post("/", auth, async function (req, res, next) {
   }
 });
 
+router.delete("/video/:incidentId", auth, async function (req, res, next) {
+  const incident = await controller.findById(req.params.incidentId);
+
+  if (String(incident.user) !== res.locals.userId) {
+    return res.status(403).json(
+      createResponse({
+        error: "Unauthorized operation.",
+      })
+    );
+  }
+
+  try {
+    res.json(
+      createResponse({
+        data: await controller.deleteVideoFile(incident),
+      })
+    );
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
 
 async function getLocationName(location) {
