@@ -8,8 +8,7 @@ const voteSchema = new mongoose.Schema(
       required: true,
     },
     post: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Guide",
+      type: Number,
       required: true,
     },
     isUpvote: {
